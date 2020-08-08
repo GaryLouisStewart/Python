@@ -45,7 +45,7 @@ class CoffeeMachine:
     def espresso(self, num_of_cups):
         self.water -= (espresso_d["water"] * num_of_cups)
         self.beans -= (espresso_d["beans"] * num_of_cups)
-        self.money -= (espresso_d["price"] * num_of_cups)
+        self.money += (espresso_d["price"] * num_of_cups)
         self.cups -= num_of_cups
         return
 
@@ -53,7 +53,7 @@ class CoffeeMachine:
         self.water -= (latte["water"] * num_of_cups)
         self.milk -= (latte["milk"] * num_of_cups)
         self.beans -= (latte["beans"] * num_of_cups)
-        self.money -= (latte["price"] * num_of_cups)
+        self.money += (latte["price"] * num_of_cups)
         self.cups -= num_of_cups
         return
 
@@ -61,29 +61,29 @@ class CoffeeMachine:
         self.water -= (cappuccino["water"] * num_of_cups)
         self.milk -= (cappuccino["milk"] * num_of_cups)
         self.beans -= (cappuccino["beans"] * num_of_cups)
-        self.money -= (cappuccino["price"] * num_of_cups)
+        self.money += (cappuccino["price"] * num_of_cups)
         self.cups -= num_of_cups
         return
 
-    def print_contents(self):
-        return f"The coffee machine has: \n", \
-               "{0} of water \n".format(self.water), \
-               "{0} of milk \n".format(self.milk), \
-               "{0} of beans \n".format(self.beans), \
-               "{0} of disposable cups \n".format(self.cups), \
-               "{0} of money \n".format(self.money)
+    def __str__(self):
+        return f"The coffee machine has: \n" \
+               f"{self.water} of water \n" \
+               f"{self.milk} of milk \n" \
+               f"{self.beans} of beans \n" \
+               f"{self.cups} of disposable cups \n" \
+               f"{self.money} of money \n"
 
     def fill(self, water=None, milk=None, beans=None, cups=None):
-        if water is not None:
+        if water > 0:
             self.water += int(water)
 
-        if milk is not None:
+        if milk > 0:
             self.milk += int(milk)
 
-        if beans is not None:
+        if beans > 0:
             self.beans += int(beans)
 
-        if cups is not None:
+        if cups > 0:
             self.cups += int(cups)
 
         return self.water, self.milk, self.beans, self.cups
@@ -93,23 +93,23 @@ class CoffeeMachine:
 
         if desired_coffee == "espresso":
             if self.cups_available(coffee) == 0:
-                self.print_contents()
+                return self.__str__()
             else:
                 self.espresso(num_of_cups)
-                self.print_contents()
+                return self.__str__()
         elif desired_coffee == "latte":
             if self.cups_available(coffee) == 0:
-                self.print_contents()
+                self.__str__()
             else:
                 self.latte(num_of_cups)
-                self.print_contents()
+                return self.__str__()
 
         elif desired_coffee == "cappuccino":
             if self.cups_available(coffee) == 0:
-                self.print_contents()
+                self.__str__()
             else:
                 self.cappuccino(num_of_cups)
-                self.print_contents()
+                self.__str__()
         else:
             print("wrong coffee specified {0}, This machine can only provide, espresso, latte and cappuccino."
                   .format(desired_coffee))
@@ -120,18 +120,39 @@ class CoffeeMachine:
         return earnings
 
 
+def init_main_program(a):
+    # final function to allow initialization
+    # ask =  "Please enter the amount of"
+    # coffee_machine = CoffeeMachine(int(input("{0} + water".format(ask))), int(input("{0} + milk".format(ask))),
+    #                               int(input("{0} + beans".format(ask))),
+    #                               int(input("{0} + disposable cups".format(ask))),
+    #                               int(input("{0} + money".format(ask))))
+
+    coffee_machine = CoffeeMachine(400, 540, 120, 550, 9)
+    print(str(coffee_machine))
+    if a == "buy":
+        choice = int(input("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: \n"))
+        if choice == 1:
+            coffee_machine.buy("espresso", 1)
+        elif choice == 2:
+            coffee_machine.buy("latte", 1)
+        elif choice == 3:
+            coffee_machine.buy("cappuccino", 1)
+
+    elif a == "fill":
+        str_1 = "Write how many {0} of {1} do you want to add: \n"
+        water = int(input(str_1.format("ml", "water")))
+        milk = int(input(str_1.format("ml", "milk")))
+        beans = int(input(str_1.format("grams", "coffee beans")))
+        cups = int(input(str_1.format("disposable cups", "coffee")))
+        coffee_machine.fill(water, milk, beans, cups)
+    elif a == "take":
+        coffee_machine.take()
+
+    return str(coffee_machine)
+
+
 if __name__ == '__main__':
-    # initialize a coffee machine with the values below.
-    test_1 = CoffeeMachine(500, 540, 120, 550, 9)
-    # print out values after initializing the class above.
-    print(test_1.water, test_1.milk, test_1.beans, test_1.money, test_1.cups)
-    print(test_1.cups_available("espresso"))
-    # buy two espressos
-    test_1.buy("espresso", 2)
-    # print out values after we have brought the correct quantity of items.
-    print(test_1.water, test_1.milk, test_1.beans, test_1.money, test_1.cups)
-    # take earnings from the coffee machine.
-    print(test_1.take())
-    # print out current earnings once we have taken them away.
-    print(test_1.money)
+    action = input("Write action (buy, fill, take): \n")
+    print(init_main_program(action))
 

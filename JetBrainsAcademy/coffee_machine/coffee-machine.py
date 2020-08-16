@@ -1,158 +1,108 @@
-espresso_d = {"water": 250, "beans": 16, "price": 4}
-latte = {"water": 350, "milk": 75, "beans": 20, "price": 7}
-cappuccino = {"water": 200, "milk": 100, "beans": 12, "price": 6}
+"""
+# this coffee machine was developed by Gary louis stewart for the jetbrains academy python developer track.
+# gary.stewart@outlook.com
+# uses pep8 styling
+"""
+
+
+class Coffee:
+    def __init__(self, water, milk, beans, cost):
+        self.water = water
+        self.milk = milk
+        self.beans = beans
+        self.cost = cost
+
+
+class CoffeeType:
+    espresso = Coffee(250, 0, 16, 4)
+    latte = Coffee(350, 75, 20, 7)
+    cappuccino = Coffee(200, 100, 12, 6)
+
+
+class MachineResources:
+    def __init__(self):
+        self.water = 400
+        self.milk = 540
+        self.beans = 120
+        self.cups = 9
+        self.money = 550
+
+    def make_cup_of_coffee(self, coffee):
+        response = "Sorry, not enough {0}!"
+        water = self.water - coffee.water
+        milk = self.milk - coffee.milk
+        beans = self.beans - coffee.beans
+        cups = self.cups - 1
+
+        if water < 0:
+            print(response.format("water"))
+        elif milk < 0:
+            print(response.format("milk"))
+        elif beans < 0:
+            print(response.format("beans"))
+        elif cups < 0:
+            print(response.format("cups"))
+        else:
+            print("I have enough resources, making you a coffee!")
+            self.water = water
+            self.milk = milk
+            self.beans = beans
+            self.cups = cups
+            self.money += coffee.cost
+
+    def make_coffee(self):
+        choice = input("What do you want to buy? 1 - "
+                       "espresso, 2 - latte, 3 - cappuccino, back - return to main menu.")
+        if choice == "1":
+            self.make_cup_of_coffee(CoffeeType.espresso)
+        elif choice == "2":
+            self.make_cup_of_coffee(CoffeeType.latte)
+        elif choice == "3":
+            self.make_cup_of_coffee(CoffeeType.cappuccino)
+
+    def resources_remaining(self):
+        print(f"The coffee machine has \n" +
+              f"{self.water} of water \n" +
+              f"{self.milk} of milk \n" +
+              f"{self.beans} of beans \n" +
+              f"{self.cups} of cups \n" +
+              f"${self.money} of money \n")
+
+    def fill(self):
+        response = "Write how many {0} of {1} do you want to add"
+        self.water += int(input(response.format("ml", "water")))
+        self.milk += int(input(response.format("ml", "milk")))
+        self.beans += int(input(response.format("g", "beans")))
+        self.cups += int(input(response.format("disposable cups", "coffee")))
+
+    def take(self):
+        print(f"I just gave you ${self.money}")
+        self.money = 0
 
 
 class CoffeeMachine:
-    # setup dicts containing static information on the quantities needed to make each drink.
+    def __init__(self):
+        self.cup_of_coffee = CoffeeType()
+        self.resources = MachineResources()
+        self.needed_cups = 0
+        self.cups_affordable = 0
+        self.run_coffee_machine()
 
-    def __init__(self, water, milk, beans, money=None, cups=None):
-        self.water = int(water)
-        self.milk = int(milk)
-        self.beans = int(beans)
-        if money is None:
-            self.money = 0
-        else:
-            self.money = int(money)
+    def run_coffee_machine(self):
+        while True:
+            action = input("Write action (buy, fill, take, remaining, exit): \n")
 
-        if cups is None:
-            self.cups = 0
-        else:
-            self.cups = int(cups)
-
-    @staticmethod
-    def getvalue(__dictionary, value):
-        for k in __dictionary:
-            if k in [value]:
-                yield __dictionary[k]
-
-    def cups_available(self, key):
-        if key is "espresso":
-            water = [n for n in CoffeeMachine.getvalue(espresso_d, "water")]
-            beans = [n for n in CoffeeMachine.getvalue(espresso_d, "beans")]
-            return min(self.water // water[0], self.beans // beans[0])
-        elif key is "latte":
-            water = [n for n in CoffeeMachine.getvalue(latte, "water")]
-            milk = [n for n in CoffeeMachine.getvalue(latte, "milk")]
-            beans = [n for n in CoffeeMachine.getvalue(latte, "beans")]
-            return min([self.water // water[0], self.milk // milk[0], self.beans // beans[0]])
-        elif key is "cappuccino":
-            water = [n for n in CoffeeMachine.getvalue(cappuccino, "water")]
-            milk = [n for n in CoffeeMachine.getvalue(cappuccino, "milk")]
-            beans = [n for n in CoffeeMachine.getvalue(cappuccino, "beans")]
-            return min([self.water // water[0], self.milk // milk[0], self.beans / beans[0]])
-
-    def espresso(self, num_of_cups):
-        self.water -= (espresso_d["water"] * num_of_cups)
-        self.beans -= (espresso_d["beans"] * num_of_cups)
-        self.money += (espresso_d["price"] * num_of_cups)
-        self.cups -= num_of_cups
-        return
-
-    def latte(self, num_of_cups):
-        self.water -= (latte["water"] * num_of_cups)
-        self.milk -= (latte["milk"] * num_of_cups)
-        self.beans -= (latte["beans"] * num_of_cups)
-        self.money += (latte["price"] * num_of_cups)
-        self.cups -= num_of_cups
-        return
-
-    def cappuccino(self, num_of_cups):
-        self.water -= (cappuccino["water"] * num_of_cups)
-        self.milk -= (cappuccino["milk"] * num_of_cups)
-        self.beans -= (cappuccino["beans"] * num_of_cups)
-        self.money += (cappuccino["price"] * num_of_cups)
-        self.cups -= num_of_cups
-        return
-
-    def __str__(self):
-        return f"The coffee machine has: \n" \
-               f"{self.water} of water \n" \
-               f"{self.milk} of milk \n" \
-               f"{self.beans} of beans \n" \
-               f"{self.cups} of disposable cups \n" \
-               f"{self.money} of money \n"
-
-    def fill(self, water=None, milk=None, beans=None, cups=None):
-        if water > 0:
-            self.water += int(water)
-
-        if milk > 0:
-            self.milk += int(milk)
-
-        if beans > 0:
-            self.beans += int(beans)
-
-        if cups > 0:
-            self.cups += int(cups)
-
-        return self.water, self.milk, self.beans, self.cups
-
-    def buy(self, coffee, num_of_cups):
-        desired_coffee = str(coffee)
-
-        if desired_coffee == "espresso":
-            if self.cups_available(coffee) == 0:
-                return self.__str__()
-            else:
-                self.espresso(num_of_cups)
-                return self.__str__()
-        elif desired_coffee == "latte":
-            if self.cups_available(coffee) == 0:
-                self.__str__()
-            else:
-                self.latte(num_of_cups)
-                return self.__str__()
-
-        elif desired_coffee == "cappuccino":
-            if self.cups_available(coffee) == 0:
-                self.__str__()
-            else:
-                self.cappuccino(num_of_cups)
-                self.__str__()
-        else:
-            print("wrong coffee specified {0}, This machine can only provide, espresso, latte and cappuccino."
-                  .format(desired_coffee))
-
-    def take(self):
-        earnings = self.money
-        self.money -= earnings
-        return earnings
+            if action == "buy":
+                self.resources.make_coffee()
+            elif action == "fill":
+                self.resources.fill()
+            elif action == "take":
+                self.resources.take()
+            elif action == "remaining":
+                self.resources.resources_remaining()
+            elif action == "exit":
+                break
 
 
-def init_main_program(a):
-    # final function to allow initialization
-    # ask =  "Please enter the amount of"
-    # coffee_machine = CoffeeMachine(int(input("{0} + water".format(ask))), int(input("{0} + milk".format(ask))),
-    #                               int(input("{0} + beans".format(ask))),
-    #                               int(input("{0} + disposable cups".format(ask))),
-    #                               int(input("{0} + money".format(ask))))
-
-    coffee_machine = CoffeeMachine(400, 540, 120, 550, 9)
-    print(str(coffee_machine))
-    if a == "buy":
-        choice = int(input("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino: \n"))
-        if choice == 1:
-            coffee_machine.buy("espresso", 1)
-        elif choice == 2:
-            coffee_machine.buy("latte", 1)
-        elif choice == 3:
-            coffee_machine.buy("cappuccino", 1)
-
-    elif a == "fill":
-        str_1 = "Write how many {0} of {1} do you want to add: \n"
-        water = int(input(str_1.format("ml", "water")))
-        milk = int(input(str_1.format("ml", "milk")))
-        beans = int(input(str_1.format("grams", "coffee beans")))
-        cups = int(input(str_1.format("disposable cups", "coffee")))
-        coffee_machine.fill(water, milk, beans, cups)
-    elif a == "take":
-        coffee_machine.take()
-
-    return str(coffee_machine)
-
-
-if __name__ == '__main__':
-    action = input("Write action (buy, fill, take): \n")
-    print(init_main_program(action))
+machine = CoffeeMachine()
 
